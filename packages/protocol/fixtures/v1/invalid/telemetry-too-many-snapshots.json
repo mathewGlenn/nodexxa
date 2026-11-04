@@ -1,0 +1,81 @@
+{
+  "protocolVersion": 1,
+  "agentVersion": "0.1.0",
+  "capabilities": [
+    "system",
+    "pm2",
+    "docker",
+    "systemd",
+    "nginx"
+  ],
+  "health": {
+    "startedAt": "2026-01-01T00:00:00Z",
+    "queueLength": 0,
+    "droppedSnapshots": 0
+  },
+  "snapshots": [
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    },
+    {
+      "collectedAt": "2026-01-01T00:00:00Z"
+    }
+  ]
+}

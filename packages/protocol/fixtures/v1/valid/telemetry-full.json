@@ -1,0 +1,110 @@
+{
+  "protocolVersion": 1,
+  "agentVersion": "0.1.0",
+  "capabilities": [
+    "system",
+    "pm2",
+    "docker",
+    "systemd",
+    "nginx"
+  ],
+  "health": {
+    "startedAt": "2026-01-01T00:00:00Z",
+    "queueLength": 0,
+    "droppedSnapshots": 0
+  },
+  "snapshots": [
+    {
+      "collectedAt": "2026-01-01T00:00:00Z",
+      "system": {
+        "uptimeSec": 86400,
+        "cpuPercent": 12.5,
+        "load1": 0.42,
+        "load5": 0.3,
+        "load15": 0.2,
+        "memTotalBytes": 2084569088,
+        "memAvailableBytes": 1042284544,
+        "swapTotalBytes": 0,
+        "swapFreeBytes": 0,
+        "filesystems": [
+          {
+            "mount": "/",
+            "fsType": "ext4",
+            "totalBytes": 52710469632,
+            "usedBytes": 21084187852
+          }
+        ]
+      },
+      "pm2": {
+        "status": "ok",
+        "items": [
+          {
+            "name": "api",
+            "pmId": 0,
+            "status": "online",
+            "restarts": 3,
+            "cpuPercent": 1.2,
+            "memoryBytes": 104857600,
+            "uptimeSec": 7200
+          },
+          {
+            "name": "worker",
+            "pmId": 1,
+            "status": "errored",
+            "restarts": 15,
+            "cpuPercent": null,
+            "memoryBytes": null,
+            "uptimeSec": null
+          }
+        ]
+      },
+      "docker": {
+        "status": "ok",
+        "items": [
+          {
+            "id": "0123456789ab",
+            "name": "redis",
+            "image": "redis:7",
+            "state": "running",
+            "health": "healthy",
+            "status": "Up 2 hours (healthy)"
+          }
+        ]
+      },
+      "systemd": {
+        "status": "ok",
+        "items": [
+          {
+            "name": "nginx.service",
+            "activeState": "active",
+            "subState": "running"
+          }
+        ]
+      },
+      "nginx": {
+        "status": "ok",
+        "active": true,
+        "version": "1.24.0",
+        "sites": [
+          {
+            "serverNames": [
+              "example.com",
+              "www.example.com"
+            ],
+            "listen": [
+              "443 ssl",
+              "[::]:443 ssl"
+            ],
+            "tls": true
+          }
+        ],
+        "certificates": [
+          {
+            "subject": "example.com",
+            "notAfter": "2026-03-01T00:00:00Z"
+          }
+        ]
+      }
+    }
+  ]
+}

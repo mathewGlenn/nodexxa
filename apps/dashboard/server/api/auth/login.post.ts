@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const { email, password } = await parseBody(event, loginSchema)
   // Throttle per source IP and per target account to slow credential stuffing and brute force.
-  await enforceRateLimit(`login:ip:${clientIp(event)}`, 30, 900)
+  await enforceRateLimit(`login:ip:${clientIp(event)}`, env().NODEXXA_RATE_LIMIT_LOGIN_IP, 900)
   await enforceRateLimit(`login:email:${email}`, 10, 900)
 
   const user = await prisma.user.findUnique({ where: { email } })

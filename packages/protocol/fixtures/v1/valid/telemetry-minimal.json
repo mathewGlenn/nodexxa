@@ -1,0 +1,22 @@
+{
+  "protocolVersion": 1,
+  "agentVersion": "0.1.0",
+  "capabilities": [
+    "system"
+  ],
+  "health": {
+    "startedAt": "2026-01-01T00:00:00Z",
+    "queueLength": 3,
+    "droppedSnapshots": 0,
+    "lastError": "dashboard unreachable"
+  },
+  "snapshots": [
+    {
+      "collectedAt": "2026-01-01T00:00:00+02:00",
+      "pm2": {
+        "status": "unavailable",
+        "error": "pm2 not installed"
+      }
+    }
+  ]
+}

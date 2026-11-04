@@ -1,0 +1,590 @@
+{
+  "$comment": "Generated from apps/dashboard/server/utils/protocol.ts — do not edit by hand.",
+  "version": 1,
+  "enrollRequest": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "protocolVersion": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "enrollmentToken": {
+        "type": "string",
+        "minLength": 20,
+        "maxLength": 128
+      },
+      "publicKey": {
+        "type": "string",
+        "pattern": "^[\\w+/]{43}=$"
+      },
+      "hostname": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 253,
+        "pattern": "^[\\w.-]+$"
+      },
+      "os": {
+        "type": "string",
+        "const": "linux"
+      },
+      "arch": {
+        "type": "string",
+        "enum": [
+          "amd64",
+          "arm64"
+        ]
+      },
+      "agentVersion": {
+        "type": "string",
+        "maxLength": 40,
+        "pattern": "^[\\w.+-]+$"
+      },
+      "capabilities": {
+        "maxItems": 5,
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "system",
+            "pm2",
+            "docker",
+            "nginx",
+            "systemd"
+          ]
+        }
+      }
+    },
+    "required": [
+      "protocolVersion",
+      "enrollmentToken",
+      "publicKey",
+      "hostname",
+      "os",
+      "arch",
+      "agentVersion",
+      "capabilities"
+    ]
+  },
+  "telemetryRequest": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "protocolVersion": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "agentVersion": {
+        "type": "string",
+        "maxLength": 40,
+        "pattern": "^[\\w.+-]+$"
+      },
+      "capabilities": {
+        "maxItems": 5,
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "system",
+            "pm2",
+            "docker",
+            "nginx",
+            "systemd"
+          ]
+        }
+      },
+      "health": {
+        "type": "object",
+        "properties": {
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "queueLength": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "droppedSnapshots": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "lastError": {
+            "type": "string",
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "startedAt",
+          "queueLength",
+          "droppedSnapshots"
+        ]
+      },
+      "snapshots": {
+        "minItems": 1,
+        "maxItems": 20,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "collectedAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "system": {
+              "type": "object",
+              "properties": {
+                "uptimeSec": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "cpuPercent": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "load1": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "load5": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "load15": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "memTotalBytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "memAvailableBytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "swapTotalBytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "swapFreeBytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "filesystems": {
+                  "maxItems": 32,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mount": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "fsType": {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      "totalBytes": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "usedBytes": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "mount",
+                      "fsType",
+                      "totalBytes",
+                      "usedBytes"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "uptimeSec",
+                "cpuPercent",
+                "load1",
+                "load5",
+                "load15",
+                "memTotalBytes",
+                "memAvailableBytes",
+                "swapTotalBytes",
+                "swapFreeBytes",
+                "filesystems"
+              ]
+            },
+            "pm2": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "unavailable",
+                    "error",
+                    "disabled"
+                  ]
+                },
+                "error": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "items": {
+                  "default": [],
+                  "maxItems": 200,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "pmId": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1000000
+                      },
+                      "status": {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      "restarts": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "cpuPercent": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 10000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "memoryBytes": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "uptimeSec": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "pmId",
+                      "status",
+                      "restarts",
+                      "cpuPercent",
+                      "memoryBytes",
+                      "uptimeSec"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "docker": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "unavailable",
+                    "error",
+                    "disabled"
+                  ]
+                },
+                "error": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "items": {
+                  "default": [],
+                  "maxItems": 200,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{12}$"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "image": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "state": {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      "health": {
+                        "type": "string",
+                        "enum": [
+                          "healthy",
+                          "unhealthy",
+                          "starting",
+                          "none"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "maxLength": 128
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "image",
+                      "state",
+                      "health",
+                      "status"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "systemd": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "unavailable",
+                    "error",
+                    "disabled"
+                  ]
+                },
+                "error": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "items": {
+                  "default": [],
+                  "maxItems": 50,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 256,
+                        "pattern": "^[\\w@.:-]+$"
+                      },
+                      "activeState": {
+                        "type": "string",
+                        "maxLength": 32
+                      },
+                      "subState": {
+                        "type": "string",
+                        "maxLength": 32
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "activeState",
+                      "subState"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "nginx": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "unavailable",
+                    "error",
+                    "disabled"
+                  ]
+                },
+                "error": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "active": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "version": {
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sites": {
+                  "default": [],
+                  "maxItems": 100,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "serverNames": {
+                        "maxItems": 20,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 253
+                        }
+                      },
+                      "listen": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 64
+                        }
+                      },
+                      "tls": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "serverNames",
+                      "listen",
+                      "tls"
+                    ]
+                  }
+                },
+                "certificates": {
+                  "default": [],
+                  "maxItems": 100,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "subject": {
+                        "type": "string",
+                        "maxLength": 253
+                      },
+                      "notAfter": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                      }
+                    },
+                    "required": [
+                      "subject",
+                      "notAfter"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "status",
+                "active"
+              ]
+            }
+          },
+          "required": [
+            "collectedAt"
+          ]
+        }
+      }
+    },
+    "required": [
+      "protocolVersion",
+      "agentVersion",
+      "capabilities",
+      "health",
+      "snapshots"
+    ]
+  },
+  "rotateKeyRequest": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "protocolVersion": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+      },
+      "newPublicKey": {
+        "type": "string",
+        "pattern": "^[\\w+/]{43}=$"
+      },
+      "proof": {
+        "type": "string",
+        "pattern": "^[\\w+/]{86}==$"
+      }
+    },
+    "required": [
+      "protocolVersion",
+      "newPublicKey",
+      "proof"
+    ]
+  }
+}

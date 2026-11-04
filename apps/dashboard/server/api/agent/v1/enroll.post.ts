@@ -3,7 +3,7 @@
  * The private key never leaves the host; the server stores only the public key.
  */
 export default defineEventHandler(async (event) => {
-  await enforceRateLimit(`enroll:ip:${clientIp(event)}`, 10, 600)
+  await enforceRateLimit(`enroll:ip:${clientIp(event)}`, env().NODEXXA_RATE_LIMIT_ENROLL_IP, 600)
   const body = await readLimitedBody(event, 16 * 1024)
   const parsed = enrollRequestSchema.safeParse(parseJson(body))
   if (!parsed.success) throw createError({ statusCode: 400, statusMessage: 'Invalid enrollment request' })

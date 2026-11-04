@@ -20,7 +20,7 @@ export default defineEventHandler((event) => {
   if (publicUrl) allowed.add(new URL(publicUrl).host)
   allowed.add(getRequestHost(event, { xForwardedHost: process.env.NODEXXA_TRUST_PROXY === 'true' }))
 
-  let ok = false
+  let ok: boolean
   if (origin) {
     try { ok = allowed.has(new URL(origin).host) }
     catch { ok = false }

@@ -8,21 +8,27 @@ import { env } from './env'
 // Destinations an uptime check may never reach: loopback, private, CGNAT, link-local (incl. cloud
 // metadata 169.254.169.254), multicast, reserved, documentation, and IPv6 equivalents. IPv6 forms
 // that embed IPv4 (mapped, NAT64, 6to4, Teredo) are refused outright.
-const blockList = new BlockList()
+// Separate lists: Node's BlockList matches IPv4 addresses against IPv4-mapped IPv6 rules,
+// so a single list containing ::ffff:0:0/96 would block every IPv4 address.
+const v4Blocked = new BlockList()
+const v6Blocked = new BlockList()
 for (const [net, prefix] of [
   ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8], ['169.254.0.0', 16], ['172.16.0.0', 12],
   ['192.0.0.0', 24], ['192.0.2.0', 24], ['192.88.99.0', 24], ['192.168.0.0', 16], ['198.18.0.0', 15], ['198.51.100.0', 24],
   ['203.0.113.0', 24], ['224.0.0.0', 4], ['240.0.0.0', 4],
-] as const) blockList.addSubnet(net, prefix, 'ipv4')
+] as const) v4Blocked.addSubnet(net, prefix, 'ipv4')
 for (const [net, prefix] of [
-  ['::', 128], ['::1', 128], ['::ffff:0:0', 96], ['64:ff9b::', 96], ['64:ff9b:1::', 48], ['100::', 64], ['2001::', 32],
+  ['::', 128], ['::1', 128], ['64:ff9b::', 96], ['64:ff9b:1::', 48], ['100::', 64], ['2001::', 32],
   ['2001:db8::', 32], ['2002::', 16], ['fc00::', 7], ['fe80::', 10], ['fec0::', 10], ['ff00::', 8],
-] as const) blockList.addSubnet(net, prefix, 'ipv6')
+] as const) v6Blocked.addSubnet(net, prefix, 'ipv6')
 
 export function isBlockedAddress(ip: string): boolean {
   const family = isIP(ip)
   if (family === 0) return true
-  return blockList.check(ip, family === 4 ? 'ipv4' : 'ipv6')
+  if (family === 4) return v4Blocked.check(ip, 'ipv4')
+  // IPv4-mapped (::ffff:a.b.c.d / ::ffff:xxxx:xxxx) and IPv4-compatible forms are always refused.
+  if (/^(0{0,4}:){0,5}:?ffff:/i.test(ip) || /^::(\d+\.){3}\d+$/.test(ip)) return true
+  return v6Blocked.check(ip, 'ipv6')
 }
 
 const allowPrivate = () => env().NODEXXA_CHECKS_ALLOW_PRIVATE === 'true'
@@ -98,7 +104,8 @@ function describe(e: unknown): string {
   return code ? `Connection failed (${code})` : 'Connection failed'
 }
 
-export async function probe(opts: ProbeOptions): Promise<ProbeResult> {
+/** `resolver` is injectable for tests; production always uses resolveSafe. */
+export async function probe(opts: ProbeOptions, resolver: typeof resolveSafe = resolveSafe): Promise<ProbeResult> {
   const started = performance.now()
   const deadline = Date.now() + opts.timeoutMs
   let url = new URL(opts.url)
@@ -107,7 +114,7 @@ export async function probe(opts: ProbeOptions): Promise<ProbeResult> {
     for (let hop = 0; ; hop++) {
       if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new ProbeError('Only http(s) URLs are allowed')
       if (url.username || url.password) throw new ProbeError('Credentials in URLs are not allowed')
-      const pinned = await resolveSafe(url.hostname)
+      const pinned = await resolver(url.hostname)
       const remaining = deadline - Date.now()
       if (remaining <= 0) throw new ProbeError(`Timed out after ${opts.timeoutMs} ms`)
       const res = await requestOnce(url, pinned, opts.method, remaining)

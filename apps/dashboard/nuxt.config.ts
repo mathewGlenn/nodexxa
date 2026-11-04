@@ -7,6 +7,8 @@ export default defineNuxtConfig({
   // Cookie storage lets SSR render the persisted theme class: no flash, no hydration mismatch.
   colorMode: { preference: 'system', fallback: 'light', storage: 'cookie', storageKey: 'nx-color-mode' },
   ui: { fonts: false },
+  // Icons are bundled from @iconify-json/lucide; never fetched from the public Iconify API at runtime.
+  icon: { fallbackToApi: false, clientBundle: { scan: true }, serverBundle: { collections: ['lucide'] } },
   typescript: { strict: true },
   routeRules: {
     '/**': {

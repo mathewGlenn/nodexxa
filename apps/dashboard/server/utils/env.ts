@@ -12,6 +12,9 @@ const schema = z.object({
   NODEXXA_CHECKS_ALLOW_PRIVATE: z.enum(['true', 'false']).default('false'),
   // Allows non-Secure cookies for plain-HTTP local testing. Refused in production.
   NODEXXA_INSECURE_COOKIES: z.enum(['true', 'false']).default('false'),
+  // Per-source-IP throttles (per-account throttles are fixed). Raise only behind a trusted proxy or in tests.
+  NODEXXA_RATE_LIMIT_LOGIN_IP: z.coerce.number().int().positive().default(30),
+  NODEXXA_RATE_LIMIT_ENROLL_IP: z.coerce.number().int().positive().default(10),
   SMTP_URL: z.string().optional(),
   SMTP_FROM: z.string().optional(),
   TELEGRAM_BOT_TOKEN: z.string().optional(),

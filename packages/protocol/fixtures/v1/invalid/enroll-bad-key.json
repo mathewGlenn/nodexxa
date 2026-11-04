@@ -1,0 +1,10 @@
+{
+  "protocolVersion": 1,
+  "enrollmentToken": "xXbH9n3jK2mP5qR8sT1vW4yZ6aC0eG7iL9oN3uQ5w",
+  "publicKey": "not-a-key",
+  "hostname": "h",
+  "os": "linux",
+  "arch": "amd64",
+  "agentVersion": "0.1.0",
+  "capabilities": []
+}
