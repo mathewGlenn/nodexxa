@@ -1,0 +1,3 @@
+[{"Id":"0123456789abcdef0123456789abcdef","Names":["/redis"],"Image":"redis:7","State":"running","Status":"Up 2 hours (healthy)","Labels":{"secret":"LEAK_DOCKER_LABEL"},"Command":"redis-server --requirepass LEAK_DOCKER_CMD","Mounts":[{"Source":"/etc/secret"}]},
+ {"Id":"fedcba9876543210fedcba9876543210","Names":["/web"],"Image":"nginx:1","State":"running","Status":"Up 5 minutes (unhealthy)"},
+ {"Id":"NOT-HEX-ID","Names":["/bad"],"Image":"x","State":"exited","Status":"Exited (1)"}]
