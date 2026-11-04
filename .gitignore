@@ -13,3 +13,6 @@ playwright-report
 agents/linux/bin
 *.log
 .data
+
+# test artefacts
+apps/dashboard/test-results

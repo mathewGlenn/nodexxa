@@ -87,9 +87,9 @@ const columns = [
   { accessorKey: 'cooldownSec', header: 'Cooldown (s)' },
   { accessorKey: 'severity', header: 'Severity' },
   { accessorKey: 'enabled', header: 'State' },
-  { accessorKey: 'actions', header: '' },
+  { accessorKey: 'actions', header: 'Actions' },
 ]
-const channelColumns = [{ accessorKey: 'name', header: 'Name' }, { accessorKey: 'type', header: 'Type' }, { accessorKey: 'target', header: 'Target' }, { accessorKey: 'actions', header: '' }]
+const channelColumns = [{ accessorKey: 'name', header: 'Name' }, { accessorKey: 'type', header: 'Type' }, { accessorKey: 'target', header: 'Target' }, { accessorKey: 'actions', header: 'Actions' }]
 
 type RuleType = typeof ALERT_TYPES[number]
 const blank = () => ({ name: '', type: 'check_failing' as RuleType, severity: 'warning' as 'info' | 'warning' | 'critical', threshold: 2 as number | undefined, durationSec: 0, cooldownSec: 900, enabled: true })

@@ -52,7 +52,7 @@ const { wsApi, can, state, workspace } = useSession()
 const { mutate } = useApi()
 const { data, refresh } = await useFetch(() => wsApi('/members'), { key: 'members' })
 const roleItems = computed(() => (workspace.value?.role === 'OWNER' ? ['OWNER', 'ADMIN', 'VIEWER'] : ['ADMIN', 'VIEWER']))
-const columns = [{ accessorKey: 'user', header: 'Member' }, { accessorKey: 'role', header: 'Role' }, { accessorKey: 'status', header: 'Status' }, { accessorKey: 'actions', header: '' }]
+const columns = [{ accessorKey: 'user', header: 'Member' }, { accessorKey: 'role', header: 'Role' }, { accessorKey: 'status', header: 'Status' }, { accessorKey: 'actions', header: 'Actions' }]
 const invite = reactive({ email: '', role: 'VIEWER' as 'OWNER' | 'ADMIN' | 'VIEWER' })
 const inviteLink = ref('')
 const origin = useRequestURL().origin

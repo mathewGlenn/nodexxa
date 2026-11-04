@@ -42,7 +42,7 @@ const columns = [
   { accessorKey: 'openedAt', header: 'Opened' },
   { accessorKey: 'resolvedAt', header: 'Resolved' },
   { accessorKey: 'notified', header: 'Notifications' },
-  { accessorKey: 'actions', header: '' },
+  { accessorKey: 'actions', header: 'Actions' },
 ]
 async function act(id: string, action: 'acknowledge' | 'resolve') {
   if (await mutate(wsApi(`/incidents/${id}`), { method: 'POST', body: { action }, success: action === 'acknowledge' ? 'Acknowledged' : 'Resolved' })) await refresh()
