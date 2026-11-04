@@ -1,0 +1,25 @@
+name: agent
+on:
+  push:
+    paths: [ "agents/**", "packages/protocol/**", "deploy/systemd/**", ".github/workflows/agent.yml" ]
+  pull_request:
+    paths: [ "agents/**", "packages/protocol/**", "deploy/systemd/**", ".github/workflows/agent.yml" ]
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run: { working-directory: agents/linux }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24", cache-dependency-path: agents/linux/go.mod }
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test -race -count=1 ./...
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+      - run: ./scripts/release.sh 0.0.0-ci
+      - run: systemd-analyze verify ../../deploy/systemd/nodexxa-agent.service || true

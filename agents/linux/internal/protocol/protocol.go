@@ -35,10 +35,10 @@ type EnrollRequest struct {
 }
 
 type EnrollResponse struct {
-	AgentID          string `json:"agentId"`
-	ProtocolVersion  int    `json:"protocolVersion"`
-	IngestIntervalSec int   `json:"ingestIntervalSec"`
-	MaxSnapshots     int    `json:"maxSnapshots"`
+	AgentID           string `json:"agentId"`
+	ProtocolVersion   int    `json:"protocolVersion"`
+	IngestIntervalSec int    `json:"ingestIntervalSec"`
+	MaxSnapshots      int    `json:"maxSnapshots"`
 }
 
 type RotateKeyRequest struct {

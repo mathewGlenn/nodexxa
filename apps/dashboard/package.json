@@ -14,13 +14,15 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "protocol:generate": "tsx scripts/cli.ts protocol-schema",
+    "fake-do": "tsx tests/fixtures/fake-do.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.151",
     "@nuxt/ui": "4.12.0",
     "@prisma/client": "6.19.3",
-    "nodemailer": "^7.0.0",
+    "nodemailer": "^10.3.1",
     "nuxt": "4.6.4",
     "prisma": "6.19.3",
     "tailwindcss": "^4.1.0",

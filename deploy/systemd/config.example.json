@@ -1,0 +1,15 @@
+{
+  "stateDir": "/var/lib/nodexxa-agent",
+  "intervalSec": 60,
+  "queueMax": 120,
+  "caFile": "",
+  "collectors": {
+    "pm2": true,
+    "pm2Home": "",
+    "docker": false,
+    "dockerSocket": "",
+    "nginx": true,
+    "nginxDirs": ["/etc/nginx/sites-enabled", "/etc/nginx/conf.d"],
+    "systemdUnits": ["nginx.service"]
+  }
+}
