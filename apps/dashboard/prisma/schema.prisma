@@ -1,0 +1,453 @@
+// Nodexxa data model. Every tenant-owned row carries workspaceId so handlers can
+// scope queries by verified membership. Provider identities are always unique per
+// connection: (connectionId, type, providerId) — never by provider ID alone.
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  VIEWER
+}
+
+enum ConnectionStatus {
+  PENDING
+  OK
+  AUTH_ERROR
+  RATE_LIMITED
+  ERROR
+  DISABLED
+}
+
+enum ResourceType {
+  droplet
+  app
+  database
+}
+
+enum AgentStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum IncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum Severity {
+  info
+  warning
+  critical
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  name         String
+  passwordHash String
+  theme        String       @default("system")
+  disabledAt   DateTime?
+  createdAt    DateTime     @default(now())
+  memberships  Membership[]
+  sessions     Session[]
+}
+
+model Session {
+  id         String   @id @default(uuid())
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Workspace {
+  id          String       @id @default(uuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+  invitations Invitation[]
+  connections Connection[]
+  resources   Resource[]
+  agents      Agent[]
+  checks      Check[]
+  alertRules  AlertRule[]
+  incidents   Incident[]
+  channels    NotificationChannel[]
+  auditLogs   AuditLog[]
+  enrollments EnrollmentToken[]
+}
+
+model Membership {
+  id          String    @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        Role
+  disabledAt  DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model Invitation {
+  id          String    @id @default(uuid())
+  workspaceId String
+  email       String
+  role        Role
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// Fixed-window counters shared by every app instance (auth, enrollment, ingest).
+model RateLimit {
+  key         String   @id
+  windowStart DateTime
+  count       Int
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  workspaceId String?
+  actorUserId String?
+  actorLabel  String
+  action      String
+  targetType  String?
+  targetId    String?
+  details     Json?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
+
+model Connection {
+  id                 String           @id @default(uuid())
+  workspaceId        String
+  label              String
+  client             String?
+  tokenCiphertext    String
+  tokenSuffix        String
+  tokenRotatedAt     DateTime         @default(now())
+  teamUuid           String?
+  teamName           String?
+  status             ConnectionStatus @default(PENDING)
+  lastError          String?
+  lastSyncAt         DateTime?
+  lastSyncAttemptAt  DateTime?
+  consecutiveFailures Int             @default(0)
+  rateLimitRemaining Int?
+  rateLimitResetAt   DateTime?
+  // Per resource type: "ok" | "forbidden" (missing scope) | "error". Never contains secrets.
+  capabilities       Json?
+  enabled            Boolean          @default(true)
+  nextSyncAt         DateTime         @default(now())
+  leaseOwner         String?
+  leaseUntil         DateTime?
+  createdAt          DateTime         @default(now())
+  workspace          Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projects           Project[]
+  resources          Resource[]
+
+  @@unique([workspaceId, label])
+  @@index([nextSyncAt])
+}
+
+model Project {
+  id           String            @id @default(uuid())
+  workspaceId  String
+  connectionId String
+  providerId   String
+  name         String
+  description  String?
+  purpose      String?
+  environment  String?
+  isDefault    Boolean           @default(false)
+  firstSeenAt  DateTime          @default(now())
+  lastSeenAt   DateTime          @default(now())
+  missingSince DateTime?
+  connection   Connection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  resources    ProjectResource[]
+
+  @@unique([connectionId, providerId])
+  @@index([workspaceId])
+}
+
+model Resource {
+  id           String            @id @default(uuid())
+  workspaceId  String
+  connectionId String
+  type         ResourceType
+  providerId   String
+  name         String
+  status       String?
+  region       String?
+  size         String?
+  tags         String[]
+  publicIpv4   String?
+  privateIpv4  String?
+  version      String?
+  url          String?
+  // Allow-listed, sanitized provider fields only (never credentials/connection strings).
+  details      Json?
+  providerCreatedAt DateTime?
+  firstSeenAt  DateTime          @default(now())
+  lastSeenAt   DateTime          @default(now())
+  missingSince DateTime?
+  metricsStatus String?
+  metricsAt    DateTime?
+  workspace    Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  connection   Connection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  projects     ProjectResource[]
+  deployments  AppDeployment[]
+  agents       Agent[]
+
+  @@unique([connectionId, type, providerId])
+  @@index([workspaceId, type])
+}
+
+model ProjectResource {
+  projectId  String
+  resourceId String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, resourceId])
+}
+
+model AppDeployment {
+  id           String    @id @default(uuid())
+  resourceId   String
+  providerId   String
+  phase        String
+  cause        String?
+  progress     String?
+  createdAt    DateTime
+  updatedAt    DateTime?
+  resource     Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceId, providerId])
+}
+
+// Generic numeric time series. seriesKey = "resource:<id>" | "agent:<id>" | "agent:<id>:pm2:<name>".
+// Unique key makes ingestion idempotent for retries/replayed batches.
+model MetricSample {
+  id          BigInt   @id @default(autoincrement())
+  workspaceId String
+  seriesKey   String
+  metric      String
+  ts          DateTime
+  value       Float
+  source      String
+
+  @@unique([seriesKey, metric, ts])
+  @@index([ts])
+}
+
+model EnrollmentToken {
+  id          String    @id @default(uuid())
+  workspaceId String
+  tokenHash   String    @unique
+  label       String?
+  expiresAt   DateTime
+  usedAt      DateTime?
+  agentId     String?
+  createdById String
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Agent {
+  id              String       @id @default(uuid())
+  workspaceId     String
+  hostname        String
+  displayName     String?
+  os              String
+  arch            String
+  agentVersion    String
+  protocolVersion Int
+  capabilities    String[]
+  // Ed25519 public key (base64, raw 32 bytes). No agent secret is stored server-side.
+  publicKey       String
+  keyRotatedAt    DateTime     @default(now())
+  lastSeq         BigInt       @default(0)
+  status          AgentStatus  @default(ACTIVE)
+  revokedAt       DateTime?
+  enrolledAt      DateTime     @default(now())
+  lastSeenAt      DateTime?
+  lastSnapshotAt  DateTime?
+  system          Json?
+  collectors      Json?
+  agentHealth     Json?
+  resourceId      String?
+  linkedById      String?
+  linkedAt        DateTime?
+  workspace       Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  resource        Resource?    @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+  processes       AgentProcess[]
+
+  @@index([workspaceId])
+}
+
+model AgentProcess {
+  id         String   @id @default(uuid())
+  agentId    String
+  kind       String   // pm2 | docker | systemd | nginx
+  name       String
+  status     String
+  health     String?
+  restarts   Int?
+  details    Json?
+  lastSeenAt DateTime
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, kind, name])
+}
+
+model Check {
+  id                  String    @id @default(uuid())
+  workspaceId         String
+  name                String
+  url                 String
+  method              String    @default("GET")
+  intervalSec         Int       @default(60)
+  timeoutMs           Int       @default(10000)
+  followRedirects     Boolean   @default(true)
+  expectedStatusMin   Int       @default(200)
+  expectedStatusMax   Int       @default(399)
+  enabled             Boolean   @default(true)
+  nextRunAt           DateTime  @default(now())
+  leaseOwner          String?
+  leaseUntil          DateTime?
+  lastStatus          String?   // up | down | null(unknown)
+  lastCheckedAt       DateTime?
+  lastLatencyMs       Int?
+  lastHttpStatus      Int?
+  lastError           String?
+  consecutiveFailures Int       @default(0)
+  tlsExpiresAt        DateTime?
+  createdAt           DateTime  @default(now())
+  workspace           Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  results             CheckResult[]
+
+  @@index([nextRunAt])
+}
+
+model CheckResult {
+  id         BigInt   @id @default(autoincrement())
+  checkId    String
+  ts         DateTime @default(now())
+  ok         Boolean
+  httpStatus Int?
+  latencyMs  Int?
+  error      String?
+  check      Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@index([checkId, ts])
+}
+
+model AlertRule {
+  id          String    @id @default(uuid())
+  workspaceId String
+  name        String
+  type        String
+  params      Json
+  severity    Severity  @default(warning)
+  durationSec Int       @default(0)
+  cooldownSec Int       @default(900)
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  states      AlertState[]
+  incidents   Incident[]
+}
+
+// Per-rule, per-subject pending condition used for duration/hysteresis.
+model AlertState {
+  ruleId       String
+  subjectKey   String
+  failingSince DateTime?
+  okSince      DateTime?
+  rule         AlertRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@id([ruleId, subjectKey])
+}
+
+model Incident {
+  id               String         @id @default(uuid())
+  workspaceId      String
+  ruleId           String?
+  dedupKey         String
+  subjectType      String
+  subjectId        String
+  title            String
+  details          String?
+  severity         Severity
+  status           IncidentStatus @default(OPEN)
+  openedAt         DateTime       @default(now())
+  lastEvaluatedAt  DateTime       @default(now())
+  acknowledgedAt   DateTime?
+  acknowledgedById String?
+  resolvedAt       DateTime?
+  workspace        Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  rule             AlertRule?     @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  deliveries       NotificationDelivery[]
+
+  @@index([workspaceId, status])
+  @@index([dedupKey, openedAt])
+}
+
+model NotificationChannel {
+  id          String    @id @default(uuid())
+  workspaceId String
+  name        String
+  type        String    // email | telegram
+  target      String    // email address(es) or Telegram chat id — not a credential
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries  NotificationDelivery[]
+}
+
+model NotificationDelivery {
+  id            String              @id @default(uuid())
+  incidentId    String
+  channelId     String
+  event         String              // opened | resolved
+  status        String              @default("pending") // pending | sent | failed | skipped
+  attempts      Int                 @default(0)
+  nextAttemptAt DateTime            @default(now())
+  lastError     String?
+  createdAt     DateTime            @default(now())
+  incident      Incident            @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  channel       NotificationChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([incidentId, channelId, event])
+  @@index([status, nextAttemptAt])
+}
+
+model WorkerHeartbeat {
+  id        String   @id
+  task      String
+  lastRunAt DateTime
+  lastError String?
+  updatedAt DateTime @updatedAt
+}

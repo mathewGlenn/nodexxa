@@ -1,0 +1,10 @@
+export default defineEventHandler(async (event) => {
+  const { user, workspaceId } = await requireMember(event, 'ADMIN')
+  const id = idParam(event)
+  const body = await parseBody(event, checkSchema)
+  await assertCheckUrlAllowed(body.url)
+  const { count } = await prisma.check.updateMany({ where: { id, workspaceId }, data: { ...body, nextRunAt: new Date() } })
+  if (!count) notFound('Check not found')
+  await audit({ workspaceId, actor: user, action: 'check.updated', targetType: 'check', targetId: id, details: { name: body.name, url: body.url, enabled: body.enabled } })
+  return prisma.check.findUnique({ where: { id }, omit: { leaseOwner: true, leaseUntil: true } })
+})

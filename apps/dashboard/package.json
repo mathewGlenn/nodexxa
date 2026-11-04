@@ -1,0 +1,42 @@
+{
+  "name": "dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "node .output/server/index.mjs",
+    "postinstall": "nuxt prepare && prisma generate",
+    "worker": "tsx worker/index.ts",
+    "cli": "tsx scripts/cli.ts",
+    "db:migrate": "prisma migrate deploy",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.151",
+    "@nuxt/ui": "4.12.0",
+    "@prisma/client": "6.19.3",
+    "nodemailer": "^7.0.0",
+    "nuxt": "4.6.4",
+    "prisma": "6.19.3",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.20.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.5.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "1.17.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "^22.0.0",
+    "@types/nodemailer": "^6.4.0",
+    "eslint": "^10.4.0",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7",
+    "vue-tsc": "^3.0.0"
+  }
+}
