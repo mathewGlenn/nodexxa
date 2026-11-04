@@ -1,0 +1,7 @@
+# Go Linux monitoring agent (Layer 2)
+
+Single Go executable targeting Linux amd64/arm64, distributable with signed/checksummed releases and sample systemd unit. Outbound HTTPS only, no arbitrary execution endpoints. Per-agent enrollment credential, rotation/revocation, identity and version negotiation.
+
+Collectors (capability-driven, graceful partial failure): system CPU/load/memory/filesystem usage; PM2 processes/status/restarts as visible to agent user (important: PM2 is per-user and root/global PM2 list is not a reliable cross-user source); Docker container state via explicitly permitted Docker connection, with warning that docker group/socket access effectively grants root-equivalent control; Nginx service health, certificate metadata or safely enumerated enabled vhosts without exposing configs; optional allowlisted systemd units and app heartbeat endpoints. Avoid privileged Docker socket permissions by default. Collect only approved sanitized metadata—never secrets, PM2 env, command-line args, Docker env, container inspect secrets, Nginx config bodies.
+
+Agent must tolerate dashboard outages with bounded local queue and jitter/backoff, no unbounded disk growth, and record its own health. Serialize versioned typed payload and payload-size limits. Defend against malformed data. Unit, protocol and race tests. Document Linux capabilities, sudo permissions if truly required, install/update/uninstall/rotate-token instructions. Limit cpu/memory via systemd and prefer non-root service user.

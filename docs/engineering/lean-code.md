@@ -1,0 +1,3 @@
+# Lean code engineering rules
+
+Ponytail-style principles without plugin dependency: optimize for minimum *unnecessary complexity*, not minimum line count. YAGNI, KISS, DRY with judgment. Use Nuxt-native routes, UI components, Zod inferred types, Prisma directly for simple CRUD; business services only for shared/complex logic. Avoid generic repository patterns, duplicate schemas, speculative abstractions and unnecessary dependencies. Prefer small clear functions and modules; never sacrifice security boundaries, transaction safety, auditability or testability. After each module remove dead code and redundant layers; don't refactor for aesthetics alone. Keep typed payload contracts for Go↔Nuxt and avoid drift with protocol tests.

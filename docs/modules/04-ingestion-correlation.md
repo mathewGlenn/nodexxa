@@ -1,0 +1,5 @@
+# Agent registration, ingestion, asset correlation
+
+One-time invitation token with short expiry and limited enrollment scopes; enrollment endpoint issues device credential only after secure validation; after use, token invalid. Store credentials hashed where possible (server verifies hashes) and protect agent-side credential at rest, no credentials in logs. Revocation immediately denies incoming data. Restrict batch size, payload fields, body sizes and per-agent ingestion frequency. Verify TLS transport, request freshness/replay protection, agent identity and workspace association. Errors must not disclose credentials or internal details.
+
+Agent register can be linked to DO droplet via explicit operator-confirmed mapping. Do not trust agent-supplied host IDs, IPs or labels to join across accounts automatically. Handle custom servers not on DigitalOcean. Provide last-seen, version, capability set, stale/not-installed status, process list and resource view. Historical time series ingestion is idempotent by agent ID and sequence/time key.
